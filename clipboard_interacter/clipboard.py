@@ -44,7 +44,6 @@ class Clipboard:
     def send_request(self):
         clipboard_content = self.get_clipboard_state()
         print("Clipboard content:", clipboard_content)
-        # Add your logic to send a request or perform any other action based on the clipboard content
 
 
 # Example Usage:
