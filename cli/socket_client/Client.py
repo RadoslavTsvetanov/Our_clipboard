@@ -1,59 +1,55 @@
-import threading
-import requests
 import websocket
 import json
+import threading
 
 
-class WebSocketClient:
-    def __init__(self, url):
-        self.url = url
-        self.ws = None
-        self.ws_lock = threading.Lock()
+class SocketClient:
+    def __init__(self, socket_id):
+        self.socket_id = socket_id
+        self.socket_url = f"ws://localhost:8080/socket/{socket_id}"
+        self.ws = websocket.WebSocketApp(
+            self.socket_url, on_message=self.on_message)
+        self.send_thread = threading.Thread(target=self.send_messages)
+        self.listen_thread = threading.Thread(target=self.listen)
+        self.running = True
 
-    def establish_connection(self):
-        with self.ws_lock:
-            if self.ws is None:
-                self.ws = websocket.create_connection(self.url)
-                print(f"WebSocket connection established: {self.url}")
+    def on_message(self, ws, message):
+        data = json.loads(message)
+        print(f"Received message from {data['id']}: {data['data']}")
 
-    def close_connection(self):
-        with self.ws_lock:
-            if self.ws is not None:
-                self.ws.close()
-                self.ws = None
-                print("WebSocket connection closed.")
+    def listen(self):
+        while self.running:
+            self.ws.run_forever()
 
-    def join_socket(self):
-        try:
-            self.establish_connection()
-            while True:
-                message = self.ws.recv()
-                self.handle_message(message)
-        except Exception as e:
-            print(f"Failed to connect to WebSocket. Error: {e}")
-        finally:
-            self.close_connection()
+    def send_data(self, data):
+        message = {"id": self.socket_id, "data": data}
+        self.ws.send(json.dumps(message))
 
-    def send_message(self, message):
-        try:
-            self.establish_connection()
-            self.ws.send(message)
-            print(f"Sent message: {message}")
-        except Exception as e:
-            print(f"Failed to send message. Error: {e}")
-        finally:
-            self.close_connection()
+    def send_messages(self):
+        while self.running:
+            message = input("Enter message to send (type 'exit' to quit): ")
+            if message.lower() == "exit":
+                self.running = False
+                break
+            self.send_data(message)
 
-    def listen_for_messages(self):
-        try:
-            self.establish_connection()
-            while True:
-                message = self.ws.recv()
-                self.handle_message(message)
-        except Exception as e:
-            print(f"Failed to listen for messages. Error: {e}")
-        finally:
-            self.close_connection()
+    def start(self):
+        self.send_thread.start()
+        self.listen_thread.start()
 
-    def handle_message(self, message):
-        print(f"Received message from WebSocket: {message}")
+    def join(self):
+        self.send_thread.join()
+        self.listen_thread.join()
+
+    def close(self):
+        self.running = False
+        self.ws.close()
+
+
+# Example usage
+if __name__ == "__main__":
+    socket_id = "example_socket"
+    client = SocketClient(socket_id)
+    client.start()
+
+    client.join()

@@ -14,7 +14,6 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// SocketHandler handles WebSocket connections
 func SocketHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -26,7 +25,6 @@ func SocketHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	socketID := vars["id"]
 
-	// Store the WebSocket connection with the provided ID
 	sockets[socketID] = conn
 
 	for {
@@ -39,20 +37,14 @@ func SocketHandler(w http.ResponseWriter, r *http.Request) {
 		// Handle incoming messages as needed
 		fmt.Printf("Received message from socket %s: %s\n", socketID, string(p))
 
-		// Broadcast the message to all clients except the sender
-		for id, socket := range sockets {
-			if id != socketID {
-				err := socket.WriteMessage(messageType, p)
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-			}
+		err = conn.WriteMessage(messageType, p)
+		if err != nil {
+			fmt.Println(err)
+			return
 		}
 	}
 }
 
-// OpenSocketHandler opens a new WebSocket with a specific ID
 func OpenSocketHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	socketID := vars["id"]
