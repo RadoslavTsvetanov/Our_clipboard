@@ -40,5 +40,5 @@ if True:
         socket_id, base_url, ClipboardMonitor(base_url).change_clipboard)
     clipboard_monitor = ClipboardMonitor(socket_client)
 
-    socket_client.start()
+    socket_client.start()  # ! establishes both the listener and the sender
     clipboard_monitor.monitor_clipboard(interval_seconds=1)

@@ -22,8 +22,7 @@ class SocketClient:
 
     def listen(self):
         print("hi")
-        while self.running:
-            self.ws.run_forever()
+        self.ws.run_forever()
 
     def send_data(self, data):
         message = {"id": self.socket_id, "data": data}
@@ -51,7 +50,7 @@ class SocketClient:
 
 
 # Example usage
-if __name__ == "__main__":
+if False:
     socket_id = "example_socket"
     base_url = "ws://localhost:8080"  # Adjust the base_url accordingly
     client = SocketClient(socket_id, base_url, None)
