@@ -4,20 +4,24 @@ import threading
 
 
 class SocketClient:
-    def __init__(self, socket_id):
+    def __init__(self, socket_id, baseurl, on_message_callback):
         self.socket_id = socket_id
-        self.socket_url = f"ws://localhost:8080/socket/{socket_id}"
+        self.socket_url = f"{baseurl}/socket/{socket_id}"
         self.ws = websocket.WebSocketApp(
             self.socket_url, on_message=self.on_message)
         self.send_thread = threading.Thread(target=self.send_messages)
         self.listen_thread = threading.Thread(target=self.listen)
         self.running = True
+        self.on_message_callback = on_message_callback
 
     def on_message(self, ws, message):
         data = json.loads(message)
         print(f"Received message from {data['id']}: {data['data']}")
+        if self.on_message_callback:
+            self.on_message_callback(data['data'])
 
     def listen(self):
+        print("hi")
         while self.running:
             self.ws.run_forever()
 
@@ -49,7 +53,7 @@ class SocketClient:
 # Example usage
 if __name__ == "__main__":
     socket_id = "example_socket"
-    client = SocketClient(socket_id)
+    base_url = "ws://localhost:8080"  # Adjust the base_url accordingly
+    client = SocketClient(socket_id, base_url, None)
     client.start()
-
     client.join()

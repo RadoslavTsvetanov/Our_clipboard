@@ -1,6 +1,6 @@
 import time
 import pyperclip
-from socket_client.Client import *
+from Client import SocketClient
 
 
 class ClipboardMonitor:
@@ -15,9 +15,8 @@ class ClipboardMonitor:
                 current_clipboard_data))
             self.previous_clipboard_data = current_clipboard_data
 
-            # Send the changed clipboard data to the WebSocket server
-            message = {"clipboard_data": current_clipboard_data}
-            self.web_socket_client.send_message(json.dumps(message))
+            message = {"data": current_clipboard_data}
+            self.web_socket_client.send_data(message)
 
     def monitor_clipboard(self, interval_seconds):
         while True:
@@ -25,9 +24,21 @@ class ClipboardMonitor:
             time.sleep(interval_seconds)
 
     def listen_socket(self):
-        self.web_socket_client.li
+        self.web_socket_client.listen_thread.start()
+
+    def change_clipboard(self, message):
+        print(f"copying {message} to clipboard")
+        pyperclip.copy(message)
 
 
-socket = WebSocketClient("http://localhost:3000/")
-clipboard_monitor = ClipboardMonitor()
-clipboard_monitor.monitor_clipboard(interval_seconds=1)
+# Example usage
+if True:
+    socket_id = "example_socket"
+    base_url = "ws://localhost:8080"  # Adjust the base_url accordingly
+
+    socket_client = SocketClient(
+        socket_id, base_url, ClipboardMonitor(base_url).change_clipboard)
+    clipboard_monitor = ClipboardMonitor(socket_client)
+
+    socket_client.start()
+    clipboard_monitor.monitor_clipboard(interval_seconds=1)
