@@ -1,6 +1,6 @@
 import time
 import pyperclip
-from Client import SocketClient
+# from client import SocketClient
 
 
 class ClipboardMonitor:
@@ -31,14 +31,15 @@ class ClipboardMonitor:
         pyperclip.copy(message)
 
 
-# Example usage
-if True:
-    socket_id = "example_socket"
-    base_url = "ws://localhost:8080"  # Adjust the base_url accordingly
+# # Example usage
+# if True:
+#     socket_id = "example_socket"
+#     # Adjust the base_url accordingly
+#     base_url = "ws://k63mgfkn-8080.euw.devtunnels.ms/"
 
-    socket_client = SocketClient(
-        socket_id, base_url, ClipboardMonitor(base_url).change_clipboard)
-    clipboard_monitor = ClipboardMonitor(socket_client)
+#     socket_client = SocketClient(
+#         socket_id, base_url, ClipboardMonitor(base_url).change_clipboard)
+#     clipboard_monitor = ClipboardMonitor(socket_client)
 
-    socket_client.start()  # ! establishes both the listener and the sender
-    clipboard_monitor.monitor_clipboard(interval_seconds=1)
+#     socket_client.start()  # ! establishes both the listener and the sender
+#     clipboard_monitor.monitor_clipboard(interval_seconds=1)

@@ -31,9 +31,7 @@ class SocketClient:
     def send_messages(self):
         while self.running:
             message = input("Enter message to send (type 'exit' to quit): ")
-            if message.lower() == "exit":
-                self.running = False
-                break
+
             self.send_data(message)
 
     def start(self):
@@ -46,13 +44,15 @@ class SocketClient:
 
     def close(self):
         self.running = False
+        self.join()
         self.ws.close()
 
 
 # Example usage
-if False:
+if True:
     socket_id = "example_socket"
-    base_url = "ws://localhost:8080"  # Adjust the base_url accordingly
+    # Adjust the base_url accordingly
+    base_url = "ws://k63mgfkn-8080.euw.devtunnels.ms/"
     client = SocketClient(socket_id, base_url, None)
     client.start()
     client.join()
