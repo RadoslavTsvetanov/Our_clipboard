@@ -1,8 +1,8 @@
-from parser import Parser
+from Parser import Parser
 import sys
 sys.path.insert(0,"./clipboard_interacter")
-from clipboard_interacter.clipboard import ClipboardMonitor
-from clipboard_interacter.client import SocketClient
+from clipboard import Clipboard
+from client import SocketClient
 
 
 class CLI:
@@ -10,14 +10,16 @@ class CLI:
         pass
 
     def start_session(self, name):
-        base_url = "ws://localhost:8080"
-        socket_client = SocketClient(
-            name, base_url, ClipboardMonitor(base_url).change_clipboard)
-        clipboard_monitor = ClipboardMonitor(socket_client)
+        def handle_received_message(message):
+        # Add your logic for handling received messages here
+            print(f"Handling received message: {message}")
 
-        socket_client.start()  # ! establishes both the listener and the sender
-        clipboard_monitor.monitor_clipboard(interval_seconds=1)
-        print("start_session")
+        socket_id = input("Enter socket ID: ")
+        server_url = "localhost:8080"  # Replace with your server's URL
+        client = SocketClient(socket_id, server_url, Clipboard(),
+                          on_message_callback=True)
+        client.run()
+
 
     def end_session(self, name):
         print("ending session")
@@ -29,7 +31,7 @@ class CLI:
 cli = CLI()
 parser = Parser(sys.argv)
 if (parser.check_for_option("--start")):
-    cli.start_session(parser.get_option_value("--name"))
+    cli.start_session()
 elif (parser.check_for_option("--end")):
     cli.end_session(parser.get_option_value("--name"))
 elif (parser.check_for_option("--send")):

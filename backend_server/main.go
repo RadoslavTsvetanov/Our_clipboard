@@ -17,14 +17,12 @@ var upgrader = websocket.Upgrader{
 func SocketHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, "Failed to upgrade connection", http.StatusInternalServerError)
 		return
 	}
 	defer conn.Close()
 
-	vars := mux.Vars(r)
-	socketID := vars["id"]
-
+	socketID := mux.Vars(r)["id"]
 	sockets[socketID] = conn
 
 	for {
@@ -34,7 +32,6 @@ func SocketHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Handle incoming messages as needed
 		fmt.Printf("Received message from socket %s: %s\n", socketID, string(p))
 
 		err = conn.WriteMessage(messageType, p)
@@ -46,8 +43,7 @@ func SocketHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func OpenSocketHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	socketID := vars["id"]
+	socketID := mux.Vars(r)["id"]
 
 	if _, exists := sockets[socketID]; exists {
 		http.Error(w, "Socket ID already in use", http.StatusBadRequest)
@@ -56,7 +52,6 @@ func OpenSocketHandler(w http.ResponseWriter, r *http.Request) {
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println(err)
 		http.Error(w, "Failed to open socket", http.StatusInternalServerError)
 		return
 	}
@@ -75,9 +70,7 @@ func main() {
 	r.HandleFunc("/socket/{id}", SocketHandler)
 	r.HandleFunc("/open-socket/{id}", OpenSocketHandler)
 
-	http.Handle("/", r)
-
 	port := ":8080"
 	fmt.Printf("Server is listening on port %s...\n", port)
-	http.ListenAndServe(port, nil)
+	http.ListenAndServe(port, r)
 }
