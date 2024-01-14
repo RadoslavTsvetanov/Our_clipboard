@@ -9,13 +9,13 @@ class CLI:
     def __init__(self) -> None:
         pass
 
-    def start_session(self, name):
+    def start_session(self):
         def handle_received_message(message):
         # Add your logic for handling received messages here
             print(f"Handling received message: {message}")
 
         socket_id = input("Enter socket ID: ")
-        server_url = "localhost:8080"  # Replace with your server's URL
+        server_url = "ws://localhost:8080"  # Replace with your server's URL
         client = SocketClient(socket_id, server_url, Clipboard(),
                           on_message_callback=True)
         client.run()

@@ -6,7 +6,7 @@ class SocketClient:
     def __init__(self, socket_id, server_url,clipboard:Clipboard, on_message_callback=None):
         self.socket_id = socket_id
         self.server_url = server_url
-        self.socket_url = f"ws://{server_url}/socket/{socket_id}"
+        self.socket_url = f"{server_url}/socket/{socket_id}"
         self.ws = websocket.WebSocketApp(self.socket_url,
                                          on_message=self._on_message,
                                          on_error=self._on_error,
